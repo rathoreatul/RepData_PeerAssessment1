@@ -1,0 +1,83 @@
+
+# Reproducible Research : Peer Assessment 1
+
+## Assignement 
+
+This assignment makes use of data from a personal activity monitoring device. This device collects data at 5 minute intervals through out the day. The data consists of two months of data from an anonymous individual collected during the months of October and November, 2012 and include the number of steps taken in 5 minute intervals each day.
+
+### Data Details
+The data for this assignment can be downloaded from the course web site:
+Dataset: [Activity monitoring data](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip) [52K]
+
+The variables included in this dataset are:
+
+  - steps: Number of steps taking in a 5-minute interval (missing values are coded as NA)
+
+  - date: The date on which the measurement was taken in YYYY-MM-DD format
+
+  - interval: Identifier for the 5-minute interval in which measurement was taken
+
+The dataset is stored in a comma-separated-value (CSV) file and there are a total of 17,568 observations in this dataset.
+
+
+### Loading and processing the Data:
+
+#### Downloading file
+
+```{r Download Data, echo=TRUE}
+## Set Dir and 
+setwd("C:/Users/e73d36g/Documents/DataScience/5-Reproducible-Research/Week2")
+
+# download the file and unzip if is not already there.
+if (!file.exists("repdata-data-activity.zip")) {
+  fileUrl <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
+  download.file(fileUrl, destfile = "RepdataActivity.zip")
+  unzip("RepdataActivity.zip")
+}
+```
+
+#### load required packages
+```{r Load Required Pakcages, echo= TRUE}
+library(plyr)
+library(ggplot2)
+##library(lattice)
+```
+
+#### Load the data
+```{r Load the Data}
+act.data <- read.csv("activity.csv")
+act.data$date <- as.POSIXct(act.data$date)
+summary(act.data)
+```
+
+## Mean total number of steps taken per day
+### Histogram of Steps
+
+```{r mean}
+act.data.agg <- aggregate(act.data$steps, by=list(act.data$date),FUN=sum, na.rm=TRUE)
+names(act.data.agg)<-c("date","steps")
+```
+
+```{r hist}
+hist(act.data.agg$steps, main = "Histogram  Steps per Day", xlab = "Tot Daily Steps")
+```
+
+#### Mean Steps per day
+```{r}
+mean(act.data.agg$steps)
+```
+
+#### Median Steps per day:
+```{r}
+median(act.data.agg$steps)
+```
+
+## Average Daily Activity Pattern
+#### 5-minutes interval
+
+```{r}
+intavg <- aggregate(x = act.data$steps, by = list(act.data$interval), FUN = mean, na.rm = TRUE)
+names(intavg) <- c("interval","steps")
+
+xyplot(steps ~ interval, data=intavg, type='l', grid=TRUE, ylab="Avg Steps", xlab="5-min int ", main="Avg number of steps int")
+```
